@@ -8,12 +8,13 @@ def show_frame():
         print("Can't receive frame (stream end?). Exiting ...")
         root.destroy()
         return
-    # Resize frame to fit the window
-    window_width = root.winfo_width()
-    window_height = root.winfo_height()
-    if window_width > 1 and window_height > 1:
-        frame = cv.resize(frame, (window_width, window_height))
-    heatmap = cv.applyColorMap(frame, cv.COLORMAP_JET)
+    # # Resize frame to fit the window
+    # window_width = root.winfo_width()
+    # window_height = root.winfo_height()
+    # if window_width > 1 and window_height > 1:
+    #     frame = cv.resize(frame, (window_width, window_height))
+    inverted = cv.bitwise_not(frame)
+    heatmap = cv.applyColorMap(inverted, cv.COLORMAP_JET)
     img = Image.fromarray(heatmap)
     imgtk = ImageTk.PhotoImage(image=img)
     lmain.imgtk = imgtk
