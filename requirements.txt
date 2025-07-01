@@ -1,4 +1,11 @@
+click==8.1.8
 numpy==2.2.5
 opencv @ file:///build/source/modules/python/package/dist/opencv-4.11.0-py3-none-any.whl#sha256=3c4780230f49a4eb7d84e2df9e55bd8f5026940b136ad02201a1fa7917b96093
 opencv-python==4.11.0
 pillow==11.2.1
+click==8.1.8
+numpy==2.2.5
+opencv @ file:///build/source/modules/python/package/dist/opencv-4.11.0-py3-none-any.whl#sha256=3c4780230f49a4eb7d84e2df9e55bd8f5026940b136ad02201a1fa7917b96093
+opencv-python==4.11.0
+pillow==11.2.1
+python-dotenv==1.1.0
