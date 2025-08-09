@@ -27,6 +27,9 @@ def show_frame():
     else:
         gray = frame
     
+    # Apply colormap to grayscale for display
+    colored_frame = cv.applyColorMap(gray, cv.COLORMAP_JET)
+    
     # Find the hottest point (brightest pixel in grayscale)
     min_val, max_val, min_loc, max_loc = cv.minMaxLoc(gray)
     
@@ -35,13 +38,13 @@ def show_frame():
     temp_max = 80
     temp = temp_min + (max_val / 255.0) * (temp_max - temp_min)
     
-    # Draw a circle at the hottest point on the original frame
-    cv.circle(frame, max_loc, 10, (0, 255, 0), 2)
+    # Draw a circle at the hottest point on the colored frame
+    cv.circle(colored_frame, max_loc, 10, (255, 255, 255), 2)
     
     # Add temperature text
     if SHOW_TEMPERATURE_TEXT:
         temp_text = f"Max Temp: {temp:.1f}C"
-        cv.putText(frame, temp_text, (10, 30), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+        cv.putText(colored_frame, temp_text, (10, 30), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
     
     # Start recording if temperature reaches 80°C and not already recording
     if temp == 80 and not recording:
@@ -58,15 +61,15 @@ def show_frame():
         filename = f"videos/fire_warning_{timestamp}.mp4"
         
         # Get frame dimensions
-        height, width = frame.shape[:2]
+        height, width = colored_frame.shape[:2]
         
         # Initialize video writer
         fourcc = cv.VideoWriter_fourcc(*'mp4v')
         video_writer = cv.VideoWriter(filename, fourcc, 30.0, (width, height))
         
-    # Record frame if recording is active
+    # Record frame if recording is active (save the colored frame)
     if recording and video_writer is not None:
-        video_writer.write(frame)
+        video_writer.write(colored_frame)
         recording_frames += 1
         
         # Stop recording after 5 seconds
@@ -82,13 +85,16 @@ def show_frame():
         window_width = root.winfo_width()
         window_height = root.winfo_height()
         if window_width > 1 and window_height > 1:
-            frame = cv.resize(frame, (window_width, window_height))
+            colored_frame = cv.resize(colored_frame, (window_width, window_height))
 
-    img = Image.fromarray(frame)
+    # Convert BGR to RGB for Tkinter display
+    colored_frame_rgb = cv.cvtColor(colored_frame, cv.COLOR_BGR2RGB)
+    img = Image.fromarray(colored_frame_rgb)
     imgtk = ImageTk.PhotoImage(image=img)
     lmain.imgtk = imgtk
     lmain.configure(image=imgtk)
     lmain.after(10, show_frame)
+
 
 
 #Load webcam
