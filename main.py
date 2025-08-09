@@ -3,8 +3,18 @@ import cv2 as cv
 import tkinter as tk
 from PIL import Image, ImageTk
 from configuration import *
+import datetime
+import os
+
+# Global variables for video recording
+recording = False
+video_writer = None
+recording_frames = 0
+max_recording_frames = 150  # 5 seconds at ~30 FPS
 
 def show_frame():
+    global recording, video_writer, recording_frames
+    
     ret, frame = cap.read()
     if not ret:
         print("Can't receive frame (stream end?). Exiting ...")
@@ -24,9 +34,7 @@ def show_frame():
     temp_min = -40
     temp_max = 80
     temp = temp_min + (max_val / 255.0) * (temp_max - temp_min)
-    if temp == 80:
-        print('FIRE WARNING!')
-        sleep(5)  
+    
     # Draw a circle at the hottest point on the original frame
     cv.circle(frame, max_loc, 10, (0, 255, 0), 2)
     
@@ -34,6 +42,40 @@ def show_frame():
     if SHOW_TEMPERATURE_TEXT:
         temp_text = f"Max Temp: {temp:.1f}C"
         cv.putText(frame, temp_text, (10, 30), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+    
+    # Start recording if temperature reaches 80°C and not already recording
+    if temp == 80 and not recording:
+        print('FIRE WARNING! Starting video recording...')
+        recording = True
+        recording_frames = 0
+        
+        # Create videos directory if it doesn't exist
+        if not os.path.exists('videos'):
+            os.makedirs('videos')
+        
+        # Generate filename with timestamp
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"videos/fire_warning_{timestamp}.mp4"
+        
+        # Get frame dimensions
+        height, width = frame.shape[:2]
+        
+        # Initialize video writer
+        fourcc = cv.VideoWriter_fourcc(*'mp4v')
+        video_writer = cv.VideoWriter(filename, fourcc, 30.0, (width, height))
+        
+    # Record frame if recording is active
+    if recording and video_writer is not None:
+        video_writer.write(frame)
+        recording_frames += 1
+        
+        # Stop recording after 5 seconds
+        if recording_frames >= max_recording_frames:
+            print("Video recording completed.")
+            recording = False
+            video_writer.release()
+            video_writer = None
+            recording_frames = 0
         
     # Resize frame to fit the window
     if RESIZE_WINDOW:

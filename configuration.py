@@ -4,5 +4,8 @@ import cv2 as cv
 RESIZE_WINDOW = False 
 
 # Change to 2 for dev
-CAMERA_INDEX = 2
+CAMERA_INDEX = 0
+
 SHOW_TEMPERATURE_TEXT = True
+
+RECORD_INCIDENTS = True
